@@ -1,0 +1,73 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,jsx}",
+  ],
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "surface": "#f8fafb",
+        "surface-tint": "#006a64",
+        "surface-container-highest": "#e1e3e4",
+        "on-secondary-fixed-variant": "#004c6b",
+        "on-secondary-fixed": "#001e2d",
+        "surface-dim": "#d8dadb",
+        "primary-fixed-dim": "#5adacf",
+        "on-surface-variant": "#3c4947",
+        "on-error-container": "#93000a",
+        "tertiary-container": "#8f969d",
+        "on-primary-fixed": "#00201d",
+        "error-container": "#ffdad6",
+        "on-secondary": "#ffffff",
+        "tertiary-fixed": "#dce3eb",
+        "on-surface": "#191c1d",
+        "primary": "#006a64",
+        "inverse-on-surface": "#eff1f2",
+        "error": "#ba1a1a",
+        "outline-variant": "#bbc9c7",
+        "on-tertiary-fixed": "#151c22",
+        "tertiary": "#585f66",
+        "on-primary": "#ffffff",
+        "inverse-surface": "#2e3132",
+        "secondary-container": "#8ad2fe",
+        "surface-variant": "#e1e3e4",
+        "surface-container": "#eceeef",
+        "primary-fixed": "#7af6eb",
+        "outline": "#6c7a78",
+        "surface-bright": "#f8fafb",
+        "primary-container": "#00a79d",
+        "on-tertiary-fixed-variant": "#40484e",
+        "on-tertiary-container": "#272f35",
+        "secondary-fixed": "#c6e7ff",
+        "on-background": "#191c1d",
+        "surface-container-lowest": "#ffffff",
+        "on-primary-fixed-variant": "#00504b",
+        "tertiary-fixed-dim": "#c0c7cf",
+        "background": "#f8fafb",
+        "secondary-fixed-dim": "#87cffc",
+        "on-tertiary": "#ffffff",
+        "surface-container-low": "#f2f4f5",
+        "secondary": "#00658d",
+        "surface-container-high": "#e6e8e9",
+        "inverse-primary": "#5adacf",
+        "on-secondary-container": "#005a7e",
+        "on-error": "#ffffff",
+        "on-primary-container": "#003431"
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      fontFamily: {
+        "headline": ["Manrope"],
+        "body": ["Inter"],
+        "label": ["Inter"]
+      }
+    },
+  },
+  plugins: [],
+}

@@ -1,0 +1,165 @@
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import MobileNav from '../components/MobileNav';
+import ReportItem from '../components/ReportItem';
+
+export default function PatientOverview() {
+  const navigate = useNavigate();
+  
+  const patient = {
+    name: "Alexander Chen",
+    id: "#882-901",
+    healthId: "HV-293-881-00",
+    dob: "12/05/1984",
+    age: "39 Yrs",
+    blood: "O+",
+    lastVisit: "Sep 14, 2024",
+    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXRW2225iA05D82_VTzXHCo_O8tQg6p-DK4MmzQh7NLXgOb2QtD5TYZ9E4pM6mh7rpDprPbYW7je8fTavIoADSNyKOfxSALql-q3zwFrd_cN3Y1YKy95QNl85pPJerdZJJw4pHGGNJakTZNXlv0z4VTOk_WnPhYjAr0WLTFqEzCUTNkzNuIsj9ISQZG3rijnm7YUmaoWTNMAwK_DikxoJJYNzVlc0mDozwrXon0f18X4uvhLABoswqkbtDPcd4XW1Nw9yXPeAXF1c"
+  };
+
+  return (
+    <div className="bg-surface text-on-surface min-h-screen">
+      <header className="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4 h-16">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/patient-records')} className="material-symbols-outlined text-teal-700 hover:bg-slate-200/50 transition-colors p-2 rounded-full">arrow_back</button>
+          <h1 className="font-headline font-bold text-slate-900 text-xl tracking-tight">{patient.name}</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="material-symbols-outlined text-slate-500 hover:bg-slate-200/50 p-2 rounded-full cursor-pointer">search</span>
+          <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center overflow-hidden border border-teal-200">
+            <img alt="Doctor Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAApMTqyjrGaZ8alnQSo46iko_gqlNnx6pcjdXF3_qH13XX63eMclHBDKoElB5ew1EM7Pd4Vu82NE2BqdLBjdIXMBjabxXv3JUFNimHCNqFfU47z_CmGHuyWXu9RROlCfCd_Jb4saFdQM5n-gO7AC4FsauZhuV6lHXYTSCQn_PLh4W8zCWfhdLiLSkmkz1vfqsd0lyFGcrNhr82R8YCF0b1TndkT7Y4l7CDycMZNsHr6xmJ-S58JBjLk9Nakk7MPPAo8cDTSXijbq8" />
+          </div>
+        </div>
+      </header>
+
+      <Sidebar activePatient={patient} />
+
+      <main className="lg:ml-72 pt-20 px-4 md:px-8 pb-12">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Patient Info Section */}
+          <section className="relative bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/15 overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-24 -mt-24 blur-3xl"></div>
+            <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary-fixed-dim/20 rounded-xl">
+                    <span className="material-symbols-outlined text-primary text-3xl">person</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-headline font-extrabold text-on-surface">{patient.name}</h2>
+                    <p className="text-sm text-slate-500 font-medium">Health ID: <span className="text-on-surface-variant">{patient.healthId}</span></p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <div className="px-4 py-2 bg-error-container/30 text-on-error-container rounded-full text-xs font-bold flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>bloodtype</span>
+                    Blood Group: {patient.blood}
+                  </div>
+                  <div className="px-4 py-2 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">warning</span>
+                    Allergies: Penicillin, Peanuts
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 md:flex md:gap-8">
+                <div className="text-center md:text-left">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Age</p>
+                  <p className="text-lg font-headline font-bold text-on-surface">{patient.age}</p>
+                </div>
+                <div className="text-center md:text-left border-l border-outline-variant/20 pl-4 md:pl-8">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Visit</p>
+                  <p className="text-lg font-headline font-bold text-on-surface">{patient.lastVisit}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Reports Section */}
+          <section className="space-y-6">
+            <div className="flex items-center border-b border-outline-variant/20">
+              <button className="px-8 py-4 text-sm font-bold text-primary border-b-2 border-primary relative">
+                Reports
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              </button>
+              <button className="px-8 py-4 text-sm font-medium text-slate-500 hover:text-on-surface-variant transition-colors">Prescriptions</button>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="relative w-full md:w-96 group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                <input className="w-full bg-surface-container-highest/50 border-none rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-slate-400" placeholder="Search medical reports..." type="text"/>
+              </div>
+              <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-tight">Filter:</span>
+                <div className="px-4 py-2 bg-primary-container text-on-primary-container rounded-full text-xs font-bold cursor-pointer whitespace-nowrap">All Reports</div>
+                <div className="px-4 py-2 bg-tertiary-container/10 text-on-tertiary-container rounded-full text-xs font-bold hover:bg-tertiary-container/20 cursor-pointer transition-colors whitespace-nowrap">Radiology</div>
+                <div className="px-4 py-2 bg-tertiary-container/10 text-on-tertiary-container rounded-full text-xs font-bold hover:bg-tertiary-container/20 cursor-pointer transition-colors whitespace-nowrap">Pathology</div>
+                <span className="material-symbols-outlined text-slate-400 p-2 hover:bg-slate-200 rounded-full cursor-pointer">filter_list</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ReportItem 
+                title="Blood Panel - Sept 2024" 
+                source="Clinical Diagnostics Lab" 
+                date="Sept 12, 2024" 
+                status="NORMAL" 
+                icon="bloodtype" 
+                iconBg="bg-teal-50" 
+                iconColor="text-teal-600" 
+              />
+              <ReportItem 
+                title="Chest X-Ray - Aug 2024" 
+                source="North Imaging Center" 
+                date="Aug 28, 2024" 
+                status="REVIEW REQ." 
+                statusColor="bg-amber-100 text-amber-700" 
+                icon="radiology" 
+                iconBg="bg-secondary-container/10" 
+                iconColor="text-secondary" 
+                attachment="2.4 MB" 
+              />
+              <ReportItem 
+                title="Metabolic Profile" 
+                source="Clinical Diagnostics Lab" 
+                date="July 04, 2024" 
+                icon="biotech" 
+                iconBg="bg-slate-100" 
+                iconColor="text-slate-600" 
+                footer="Signed by Dr. Sarah Miller" 
+              />
+              <div onClick={() => navigate('/add-prescription')} className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 group-hover:bg-primary group-hover:text-on-primary transition-all">
+                  <span className="material-symbols-outlined">upload</span>
+                </div>
+                <p className="text-sm font-bold text-slate-600">Upload New Report</p>
+                <p className="text-[10px] text-slate-400">PDF, JPG up to 10MB</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Appointments Section */}
+          <section className="grid grid-cols-1 gap-6 mt-12">
+            <div className="bg-secondary-container/20 border border-secondary-container/30 p-6 rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center mb-4">
+                  <span className="material-symbols-outlined">medical_information</span>
+                </div>
+                <h4 className="font-headline font-bold text-on-surface">Upcoming Appointments</h4>
+                <p className="text-xs text-slate-500 mt-1">General checkup with Dr. Miller in 4 days.</p>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <div className="bg-white p-2 rounded-lg shadow-sm border border-outline-variant/10 text-center flex-1">
+                  <p className="text-[10px] font-bold text-slate-400">SEPT</p>
+                  <p className="text-lg font-headline font-extrabold text-primary">22</p>
+                </div>
+                <button className="text-secondary text-xs font-bold hover:underline">Reschedule</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+      <MobileNav />
+    </div>
+  );
+}
