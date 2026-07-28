@@ -24,14 +24,14 @@ const [loading, setLoading] = useState(!user);
 useEffect(() => {
   const fetchProfile = async () => {
     try {
-      const email = localStorage.getItem("email");
+      const identifier = localStorage.getItem("authIdentifier") || localStorage.getItem("email");
 
-      if (!email) {
+      if (!identifier) {
         setLoading(false);
         return;
       }
 
-      const response = await getProfile(email);
+      const response = await getProfile(identifier);
 
       setUser(response.data);
 

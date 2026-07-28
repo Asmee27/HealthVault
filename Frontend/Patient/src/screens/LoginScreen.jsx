@@ -2,6 +2,26 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { login } from "../services/authService";
 
+const getLoginErrorMessage = (error) => {
+  const data = error?.response?.data;
+
+  if (typeof data === "string" && data.trim()) {
+    return data;
+  }
+
+  if (data && typeof data === "object") {
+    if (typeof data.message === "string" && data.message.trim()) {
+      return data.message;
+    }
+
+    if (typeof data.error === "string" && data.error.trim()) {
+      return data.error;
+    }
+  }
+
+  return "Login failed. Please check your credentials.";
+};
+
 export default function LoginScreen() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -93,7 +113,8 @@ export default function LoginScreen() {
                 <button
                   onClick={async () => {
                     try {
-                      const response = await login(email, password);
+                      const identifier = email.trim();
+                      const response = await login(identifier, password);
 
                       const profile = {
                         id: response.data.id,
@@ -103,14 +124,16 @@ export default function LoginScreen() {
                         role: response.data.role,
                       };
 
-                      localStorage.setItem("email", response.data.email || email);
+                      localStorage.setItem("authIdentifier", identifier);
+                      localStorage.setItem("email", response.data.email || identifier);
+                      localStorage.setItem("patientId", String(response.data.id));
                       localStorage.setItem("profile", JSON.stringify(profile));
 
                       alert(response.data.message);
 
                       navigate("/profile", { replace: true });
                     } catch (error) {
-                      alert(error.response?.data || "Login Failed");
+                      alert(getLoginErrorMessage(error));
                     }
                   }}
                   className="w-full py-4 bg-primary text-on-primary font-headline font-bold text-lg rounded-xl shadow-lg shadow-primary/10 transition-all hover:translate-y-[-2px] active:scale-95 active:translate-y-0"

@@ -9,6 +9,7 @@ import com.hvault.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.hvault.backend.dto.UpdateProfileRequest;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -37,7 +38,10 @@ public class AuthService {
         user.setMobileNumber(request.getMobileNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.PATIENT);
-
+        user.setGender(request.getGender());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setBloodGroup(request.getBloodGroup());
+        user.setQrToken(UUID.randomUUID().toString());
         userRepository.save(user);
 
         return "Registration Successful";
@@ -63,26 +67,29 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getMobileNumber(),
-                user.getRole().name()
-        );
+                user.getRole().name());
     }
 
-    public User updateProfile(String email, UpdateProfileRequest request) {
+    public User updateProfile(String identifier, UpdateProfileRequest request) {
 
-    User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findUserByIdentifier(identifier);
 
-    user.setFullName(request.getFullName());
-    user.setDateOfBirth(request.getDateOfBirth());
-    user.setGender(request.getGender());
-    user.setBloodGroup(request.getBloodGroup());
-    user.setAddress(request.getAddress());
+        user.setFullName(request.getFullName());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setGender(request.getGender());
+        user.setBloodGroup(request.getBloodGroup());
+        user.setAddress(request.getAddress());
 
-    return userRepository.save(user);
-}
+        return userRepository.save(user);
+    }
 
-    public User getProfile(String email) {
-    return userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-}
+    public User getProfile(String identifier) {
+        return findUserByIdentifier(identifier);
+    }
+
+    private User findUserByIdentifier(String identifier) {
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByMobileNumber(identifier))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }

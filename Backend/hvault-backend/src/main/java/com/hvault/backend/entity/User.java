@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -43,4 +44,7 @@ public class User {
     private String address;
 
     private String profileImage;
+
+    @Column(unique = true)
+    private String qrToken;
 }

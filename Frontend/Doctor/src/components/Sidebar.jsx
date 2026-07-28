@@ -4,7 +4,7 @@ export default function Sidebar({ activePatient = null }) {
   const navigate = useNavigate();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-72 flex flex-col z-40 bg-white dark:bg-slate-950 rounded-r-2xl shadow-2xl shadow-teal-950/10 hidden lg:flex pt-20">
+    <aside className="fixed left-0 top-0 h-full w-72 max-lg:hidden flex flex-col z-40 bg-white dark:bg-slate-950 rounded-r-2xl shadow-2xl shadow-teal-950/10 pt-20">
       <div className="px-6 py-4 flex flex-col gap-1 mb-6">
         {activePatient ? (
           <div className="flex items-center gap-3">
@@ -38,14 +38,7 @@ export default function Sidebar({ activePatient = null }) {
           <span className="material-symbols-outlined" style={{fontVariationSettings: "'FILL' 1"}}>description</span>
           <span className="text-sm font-inter tracking-tight">Clinical Notes</span>
         </Link>
-        <a href="#" className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl px-4 py-3 mx-2 transition-all">
-          <span className="material-symbols-outlined">science</span>
-          <span className="text-sm font-inter tracking-tight">Lab Results</span>
-        </a>
-        <a href="#" className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl px-4 py-3 mx-2 transition-all">
-          <span className="material-symbols-outlined">biotech</span>
-          <span className="text-sm font-inter tracking-tight">Imaging</span>
-        </a>
+        
       </nav>
 
       <div className="p-6">

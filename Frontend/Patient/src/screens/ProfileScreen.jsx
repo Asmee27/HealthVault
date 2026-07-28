@@ -2,10 +2,45 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopAppBar from '../components/TopAppBar';
 import BottomNavBar from '../components/BottomNavBar';
-import { getProfile } from "../services/profileService";
+import { getProfile, updateProfile } from "../services/profileService";
+
+const formatDateForInput = (dateValue) => {
+  if (!dateValue) {
+    return "";
+  }
+
+  const parsed = new Date(dateValue);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  return parsed.toISOString().split("T")[0];
+};
+
+const getProfileSaveMessage = (error) => {
+  const data = error?.response?.data;
+
+  if (typeof data === "string" && data.trim()) {
+    return data;
+  }
+
+  if (data && typeof data === "object") {
+    if (typeof data.message === "string" && data.message.trim()) {
+      return data.message;
+    }
+
+    if (typeof data.error === "string" && data.error.trim()) {
+      return data.error;
+    }
+  }
+
+  return "Unable to save profile. Please try again.";
+};
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
+  const [identifier, setIdentifier] = useState("");
   const [user, setUser] = useState(() => {
     const cachedProfile = localStorage.getItem("profile");
 
@@ -20,19 +55,41 @@ export default function ProfileScreen() {
     }
   });
   const [loading, setLoading] = useState(!user);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    dateOfBirth: "",
+    gender: "",
+    bloodGroup: "",
+    address: "",
+  });
+
+  const applyUserToForm = (profile) => {
+    setFormData({
+      fullName: profile?.fullName || "",
+      dateOfBirth: formatDateForInput(profile?.dateOfBirth),
+      gender: profile?.gender || "",
+      bloodGroup: profile?.bloodGroup || "",
+      address: profile?.address || "",
+    });
+  };
 
 useEffect(() => {
   const fetchProfile = async () => {
     try {
-      const email = localStorage.getItem("email");
+      const currentIdentifier = localStorage.getItem("authIdentifier") || localStorage.getItem("email");
 
-      if (!email) {
+      if (!currentIdentifier) {
         setLoading(false);
         return;
       }
 
-      const response = await getProfile(email);
+      setIdentifier(currentIdentifier);
+
+      const response = await getProfile(currentIdentifier);
       setUser(response.data);
+      applyUserToForm(response.data);
+      localStorage.setItem("profile", JSON.stringify(response.data));
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,6 +99,41 @@ useEffect(() => {
 
   fetchProfile();
 }, []);
+
+  const handleFieldChange = (field, value) => {
+    setFormData((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleSaveProfile = async () => {
+    if (!identifier) {
+      alert("Please login again.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const payload = {
+        fullName: formData.fullName,
+        dateOfBirth: formData.dateOfBirth || null,
+        gender: formData.gender || null,
+        bloodGroup: formData.bloodGroup || null,
+        address: formData.address || null,
+      };
+
+      const response = await updateProfile(identifier, payload);
+
+      setUser(response.data);
+      applyUserToForm(response.data);
+      localStorage.setItem("profile", JSON.stringify(response.data));
+
+      alert("Profile updated successfully.");
+    } catch (error) {
+      alert(getProfileSaveMessage(error));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="pb-32 bg-surface min-h-screen">
@@ -81,8 +173,8 @@ useEffect(() => {
               <label className="text-xs font-semibold uppercase tracking-wider text-outline">Full Name</label>
               <input 
                 className="w-full bg-surface-container-low border-none rounded-lg p-3" 
-                value={user?.fullName || ""}
-readOnly 
+                value={formData.fullName}
+                onChange={(event) => handleFieldChange('fullName', event.target.value)}
                 type="text" 
               />
             </div>
@@ -91,11 +183,74 @@ readOnly
               <input 
                 className="w-full bg-surface-container-low border-none rounded-lg p-3" 
                 value={user?.email || ""}
-readOnly
+                readOnly
                 type="email" 
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-outline">Date of Birth</label>
+              <input 
+                className="w-full bg-surface-container-low border-none rounded-lg p-3" 
+                value={formData.dateOfBirth}
+                onChange={(event) => handleFieldChange('dateOfBirth', event.target.value)}
+                type="date" 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-outline">Blood Group</label>
+              <select
+                className="w-full bg-surface-container-low border-none rounded-lg p-3"
+                value={formData.bloodGroup}
+                onChange={(event) => handleFieldChange('bloodGroup', event.target.value)}
+              >
+                <option value="">Select blood group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-outline">Gender</label>
+              <div className="grid grid-cols-3 gap-2">
+                {['Male', 'Female', 'Other'].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleFieldChange('gender', option)}
+                    className={`px-4 py-3 rounded-xl border text-sm font-semibold transition-all ${
+                      formData.gender === option
+                        ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/10'
+                        : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:border-primary/20'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-outline">Address</label>
+              <textarea
+                className="w-full bg-surface-container-low border-none rounded-lg p-3 min-h-[92px]"
+                value={formData.address}
+                onChange={(event) => handleFieldChange('address', event.target.value)}
+                placeholder="Enter address"
+              />
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={handleSaveProfile}
+            disabled={loading || isSaving}
+            className="w-full md:w-auto px-8 py-3 bg-primary text-on-primary font-semibold rounded-lg shadow-lg shadow-primary/10 transition-all hover:translate-y-[-1px] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isSaving ? 'Saving...' : 'Save Profile'}
+          </button>
         </section>
 
         {/* Actions */}
@@ -103,6 +258,7 @@ readOnly
           <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
             <button 
               onClick={() => {
+                localStorage.removeItem("authIdentifier");
                 localStorage.removeItem("email");
                 localStorage.removeItem("profile");
                 navigate('/login');

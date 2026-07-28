@@ -1,5 +1,7 @@
 package com.hvault.backend.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,6 +21,12 @@ public class RegisterRequest {
 
     @NotBlank
     private String password;
+
+    private String gender;
+
+    private LocalDate dateOfBirth;
+
+    private String bloodGroup;
 
     
 }

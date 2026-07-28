@@ -1,28 +1,44 @@
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import MobileNav from '../components/MobileNav';
-import ReportItem from '../components/ReportItem';
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+import Sidebar from "../components/Sidebar";
+import MobileNav from "../components/MobileNav";
+import ReportItem from "../components/ReportItem";
 
 export default function PatientOverview() {
   const navigate = useNavigate();
+const { qrToken } = useParams();
+
+const [patient, setPatient] = useState(null);
+const [reports, setReports] = useState([]);
+
+useEffect(() => {
+
+    axios
+        .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
+        .then((res) => setPatient(res.data));
+
+    axios
+        .get(`http://localhost:8081/api/doctor/patient/${qrToken}/reports`)
+        .then((res) => setReports(res.data));
+
+}, [qrToken]);
   
-  const patient = {
-    name: "Alexander Chen",
-    id: "#882-901",
-    healthId: "HV-293-881-00",
-    dob: "12/05/1984",
-    age: "39 Yrs",
-    blood: "O+",
-    lastVisit: "Sep 14, 2024",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXRW2225iA05D82_VTzXHCo_O8tQg6p-DK4MmzQh7NLXgOb2QtD5TYZ9E4pM6mh7rpDprPbYW7je8fTavIoADSNyKOfxSALql-q3zwFrd_cN3Y1YKy95QNl85pPJerdZJJw4pHGGNJakTZNXlv0z4VTOk_WnPhYjAr0WLTFqEzCUTNkzNuIsj9ISQZG3rijnm7YUmaoWTNMAwK_DikxoJJYNzVlc0mDozwrXon0f18X4uvhLABoswqkbtDPcd4XW1Nw9yXPeAXF1c"
-  };
+  if (!patient) {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      Loading...
+    </div>
+  );
+}
 
   return (
     <div className="bg-surface text-on-surface min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4 h-16">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/patient-records')} className="material-symbols-outlined text-teal-700 hover:bg-slate-200/50 transition-colors p-2 rounded-full">arrow_back</button>
-          <h1 className="font-headline font-bold text-slate-900 text-xl tracking-tight">{patient.name}</h1>
+          <h1 className="font-headline font-bold text-slate-900 text-xl tracking-tight">{patient.fullName}</h1>
         </div>
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-slate-500 hover:bg-slate-200/50 p-2 rounded-full cursor-pointer">search</span>
@@ -46,14 +62,14 @@ export default function PatientOverview() {
                     <span className="material-symbols-outlined text-primary text-3xl">person</span>
                   </div>
                   <div>
-                    <h2 className="text-2xl font-headline font-extrabold text-on-surface">{patient.name}</h2>
-                    <p className="text-sm text-slate-500 font-medium">Health ID: <span className="text-on-surface-variant">{patient.healthId}</span></p>
+                    <h2 className="text-2xl font-headline font-extrabold text-on-surface">{patient.fullName}</h2>
+                    <p className="text-sm text-slate-500 font-medium">Health ID: <span className="text-on-surface-variant">{patient.qrToken}</span></p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <div className="px-4 py-2 bg-error-container/30 text-on-error-container rounded-full text-xs font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>bloodtype</span>
-                    Blood Group: {patient.blood}
+                    Blood Group: {patient.bloodGroup}
                   </div>
                   <div className="px-4 py-2 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm">warning</span>
@@ -99,35 +115,37 @@ export default function PatientOverview() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ReportItem 
-                title="Blood Panel - Sept 2024" 
-                source="Clinical Diagnostics Lab" 
-                date="Sept 12, 2024" 
-                status="NORMAL" 
-                icon="bloodtype" 
-                iconBg="bg-teal-50" 
-                iconColor="text-teal-600" 
-              />
-              <ReportItem 
-                title="Chest X-Ray - Aug 2024" 
-                source="North Imaging Center" 
-                date="Aug 28, 2024" 
-                status="REVIEW REQ." 
-                statusColor="bg-amber-100 text-amber-700" 
-                icon="radiology" 
-                iconBg="bg-secondary-container/10" 
-                iconColor="text-secondary" 
-                attachment="2.4 MB" 
-              />
-              <ReportItem 
-                title="Metabolic Profile" 
-                source="Clinical Diagnostics Lab" 
-                date="July 04, 2024" 
-                icon="biotech" 
-                iconBg="bg-slate-100" 
-                iconColor="text-slate-600" 
-                footer="Signed by Dr. Sarah Miller" 
-              />
+              {reports.map((report) => (
+                <div
+                  key={report.id}
+                  className="bg-white rounded-xl shadow p-5 border border-gray-200"
+                >
+                  <h3 className="text-lg font-bold">{report.reportType}</h3>
+                  <p className="text-sm text-gray-600 mt-2">{report.fileName}</p>
+                  <p className="text-sm text-gray-500 mt-1">{report.notes}</p>
+                  <div className="mt-4 flex gap-2">
+                    <a
+                      href={`http://localhost:8081/${report.filePath.replace(/\\/g, "/").split("uploads/")[1]}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                    >
+                      View
+                    </a>
+                  </div>
+                </div>
+              ))}
+
+              <div
+                onClick={() => navigate(`/add-prescription/${qrToken}`)}
+                className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-3">
+                  <span className="material-symbols-outlined">add</span>
+                </div>
+                <p className="text-sm font-bold">Add Prescription</p>
+              </div>
+
               <div onClick={() => navigate('/add-prescription')} className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer">
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 group-hover:bg-primary group-hover:text-on-primary transition-all">
                   <span className="material-symbols-outlined">upload</span>
