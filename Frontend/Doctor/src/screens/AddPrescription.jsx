@@ -29,6 +29,7 @@ export default function AddPrescription() {
       params.append("doctorId", 2);
       params.append("diagnosis", diagnosis);
       params.append("medicines", medicine);
+      
       params.append("duration", duration);
       params.append("frequency", frequency);
 
