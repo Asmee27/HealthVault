@@ -10,17 +10,18 @@
     "lint": "eslint src --ext js,jsx"
   },
   "dependencies": {
+    "html5-qrcode": "^2.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.1",
-    "html5-qrcode": "^2.3.4"
+    "react-qr-code": "^2.2.0",
+    "react-router-dom": "^6.20.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.7",
-    "tailwindcss": "^3.3.6",
-    "postcss": "^8.4.32",
     "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "vite": "^5.0.7",
     "vite-plugin-pwa": "^0.17.4"
   }
 }
