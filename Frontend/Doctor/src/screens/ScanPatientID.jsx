@@ -59,8 +59,8 @@ export default function ScanPatientID() {
         <div className="w-full max-w-[240px]">
           <button
             onClick={() =>
-              navigate("/patient-overview/550e8400-e29b-41d4-a716-446655440000")
-            }
+  navigate("/patient-overview/550e8400-e29b-41d4-a716-446655440000")
+}
             className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-on-primary rounded-full text-sm font-semibold shadow-lg shadow-primary/20 hover:bg-primary-container hover:text-on-primary-container active:scale-95 transition-all"
           >
             <span className="material-symbols-outlined text-lg">image</span>

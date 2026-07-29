@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
@@ -7,17 +7,20 @@ import HistoryCard from "../components/HistoryCard";
 
 export default function AddPrescription() {
   const navigate = useNavigate();
+  const { qrToken } = useParams();
+  const [patient, setPatient] = useState(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [medicine, setMedicine] = useState("");
   const [duration, setDuration] = useState("7 Days");
   const [frequency, setFrequency] = useState("Three times daily");
+  const [dosage, setDosage] = useState("");
 
-  const patient = {
-    name: "Alexander Chen",
-    id: "#882-901",
-    dob: "12/05/1984",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhtrPjzpBE67VDG5bkPZBcEVT09x63zCVj5X5gd0AwpbMbm85YD2Fp8OnNLGidczPgARvzXvr0o-_TrrUzGp17HiGoaL9j0kUW1mAd7zlYu_xIsmee723yyb43EQ4LOW_oDvttNBjFByiroiJ5Hsw7clBDTNrOxl8Cu_0rwwxOKkvzGBXaz711yvj6gCcGFrGn7ilHuoBousyQ7vvZDDAs2xcNNOJa0RAOaAGwNIOh7RpCQ1-LeieuyaewrvyQl9khvY7Xd5JFX3A",
-  };
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
+      .then((res) => setPatient(res.data))
+      .catch((err) => console.error(err));
+  }, [qrToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,11 +28,11 @@ export default function AddPrescription() {
     try {
       const params = new URLSearchParams();
 
-      params.append("patientId", 1);
+      params.append("patientId", patient.id);
       params.append("doctorId", 2);
       params.append("diagnosis", diagnosis);
       params.append("medicines", medicine);
-      
+
       params.append("duration", duration);
       params.append("frequency", frequency);
 
@@ -37,19 +40,26 @@ export default function AddPrescription() {
 
       alert("Prescription Saved Successfully!");
 
-      navigate("/patient-overview");
+      navigate(`/patient-overview/${qrToken}`);
     } catch (err) {
       console.error(err);
       alert("Failed to save prescription");
     }
   };
-
+  
+  if (!patient) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
   return (
     <div className="bg-surface font-body text-on-surface min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/patient-overview")}
+            onClick={() => navigate(`/patient-overview/${qrToken}`)}
             className="hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors p-2 rounded-full"
           >
             <span className="material-symbols-outlined text-teal-700 dark:text-teal-400">
@@ -294,7 +304,7 @@ export default function AddPrescription() {
                   <button
                     className="px-8 py-4 bg-surface-container text-on-surface-variant font-headline font-bold rounded-xl hover:bg-surface-container-highest transition-all"
                     type="button"
-                    onClick={() => navigate("/patient-overview")}
+                    onClick={() => navigate(`/patient-overview/${qrToken}`)}
                   >
                     Save as Draft
                   </button>
@@ -306,7 +316,7 @@ export default function AddPrescription() {
       </main>
 
       <button
-        onClick={() => navigate("/add-prescription")}
+        onClick={() => navigate(`/add-prescription/${qrToken}`)}
         className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-2xl shadow-2xl flex items-center justify-center group transition-all hover:w-48 hover:rounded-xl active:scale-95 z-50 overflow-hidden md:hidden"
       >
         <div className="flex items-center gap-2 px-4 whitespace-nowrap">

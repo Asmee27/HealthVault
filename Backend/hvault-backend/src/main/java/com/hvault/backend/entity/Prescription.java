@@ -1,40 +1,81 @@
 package com.hvault.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Patient receiving the prescription
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
-    private User patient;
-
-    // Doctor who created it
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    private User doctor;
-
     private String diagnosis;
 
-    @Column(columnDefinition = "TEXT")
     private String medicines;
 
-    private String duration;
+    private String dosage;
 
-    private String frequency;
+    private String instructions;
 
-    private LocalDateTime createdAt;
+    private LocalDate prescribedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Prescription() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    public String getMedicines() {
+        return medicines;
+    }
+
+    public void setMedicines(String medicines) {
+        this.medicines = medicines;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public LocalDate getPrescribedDate() {
+        return prescribedDate;
+    }
+
+    public void setPrescribedDate(LocalDate prescribedDate) {
+        this.prescribedDate = prescribedDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

@@ -8,42 +8,63 @@ import ReportItem from "../components/ReportItem";
 
 export default function PatientOverview() {
   const navigate = useNavigate();
-const { qrToken } = useParams();
+  const { qrToken } = useParams();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [patient, setPatient] = useState(null);
+  const [reports, setReports] = useState([]);
 
-const [patient, setPatient] = useState(null);
-const [reports, setReports] = useState([]);
-
-useEffect(() => {
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
+      .then((res) => setPatient(res.data));
 
     axios
-        .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
-        .then((res) => setPatient(res.data));
+      .get(`http://localhost:8081/api/patient/patient/${qrToken}/reports`)
+      .then((res) => setReports(res.data))
+      .catch((err) => console.error(err));
+  }, [qrToken]);
 
-    axios
-        .get(`http://localhost:8081/api/doctor/patient/${qrToken}/reports`)
-        .then((res) => setReports(res.data));
-
-}, [qrToken]);
-  
   if (!patient) {
-  return (
-    <div className="flex justify-center items-center h-screen">
-      Loading...
-    </div>
-  );
-}
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
+  }
+  const filteredReports = reports.filter((report) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      report.reportType.toLowerCase().includes(search) ||
+      report.fileName.toLowerCase().includes(search) ||
+      (report.notes && report.notes.toLowerCase().includes(search))
+    );
+  });
 
   return (
     <div className="bg-surface text-on-surface min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4 h-16">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/patient-records')} className="material-symbols-outlined text-teal-700 hover:bg-slate-200/50 transition-colors p-2 rounded-full">arrow_back</button>
-          <h1 className="font-headline font-bold text-slate-900 text-xl tracking-tight">{patient.fullName}</h1>
+          <button
+            onClick={() => navigate("/patient-records")}
+            className="material-symbols-outlined text-teal-700 hover:bg-slate-200/50 transition-colors p-2 rounded-full"
+          >
+            arrow_back
+          </button>
+          <h1 className="font-headline font-bold text-slate-900 text-xl tracking-tight">
+            {patient.fullName}
+          </h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-slate-500 hover:bg-slate-200/50 p-2 rounded-full cursor-pointer">search</span>
+          <span className="material-symbols-outlined text-slate-500 hover:bg-slate-200/50 p-2 rounded-full cursor-pointer">
+            search
+          </span>
           <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center overflow-hidden border border-teal-200">
-            <img alt="Doctor Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAApMTqyjrGaZ8alnQSo46iko_gqlNnx6pcjdXF3_qH13XX63eMclHBDKoElB5ew1EM7Pd4Vu82NE2BqdLBjdIXMBjabxXv3JUFNimHCNqFfU47z_CmGHuyWXu9RROlCfCd_Jb4saFdQM5n-gO7AC4FsauZhuV6lHXYTSCQn_PLh4W8zCWfhdLiLSkmkz1vfqsd0lyFGcrNhr82R8YCF0b1TndkT7Y4l7CDycMZNsHr6xmJ-S58JBjLk9Nakk7MPPAo8cDTSXijbq8" />
+            <img
+              alt="Doctor Profile"
+              className="w-full h-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAApMTqyjrGaZ8alnQSo46iko_gqlNnx6pcjdXF3_qH13XX63eMclHBDKoElB5ew1EM7Pd4Vu82NE2BqdLBjdIXMBjabxXv3JUFNimHCNqFfU47z_CmGHuyWXu9RROlCfCd_Jb4saFdQM5n-gO7AC4FsauZhuV6lHXYTSCQn_PLh4W8zCWfhdLiLSkmkz1vfqsd0lyFGcrNhr82R8YCF0b1TndkT7Y4l7CDycMZNsHr6xmJ-S58JBjLk9Nakk7MPPAo8cDTSXijbq8"
+            />
           </div>
         </div>
       </header>
@@ -59,32 +80,56 @@ useEffect(() => {
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary-fixed-dim/20 rounded-xl">
-                    <span className="material-symbols-outlined text-primary text-3xl">person</span>
+                    <span className="material-symbols-outlined text-primary text-3xl">
+                      person
+                    </span>
                   </div>
                   <div>
-                    <h2 className="text-2xl font-headline font-extrabold text-on-surface">{patient.fullName}</h2>
-                    <p className="text-sm text-slate-500 font-medium">Health ID: <span className="text-on-surface-variant">{patient.qrToken}</span></p>
+                    <h2 className="text-2xl font-headline font-extrabold text-on-surface">
+                      {patient.fullName}
+                    </h2>
+                    <p className="text-sm text-slate-500 font-medium">
+                      Health ID:{" "}
+                      <span className="text-on-surface-variant">
+                        {patient.qrToken}
+                      </span>
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <div className="px-4 py-2 bg-error-container/30 text-on-error-container rounded-full text-xs font-bold flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>bloodtype</span>
+                    <span
+                      className="material-symbols-outlined text-sm"
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      bloodtype
+                    </span>
                     Blood Group: {patient.bloodGroup}
                   </div>
                   <div className="px-4 py-2 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">warning</span>
+                    <span className="material-symbols-outlined text-sm">
+                      warning
+                    </span>
                     Allergies: Penicillin, Peanuts
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 md:flex md:gap-8">
                 <div className="text-center md:text-left">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Age</p>
-                  <p className="text-lg font-headline font-bold text-on-surface">{patient.age}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Age
+                  </p>
+                  <p className="text-lg font-headline font-bold text-on-surface">
+                    {patient.age}
+                  </p>
                 </div>
                 <div className="text-center md:text-left border-l border-outline-variant/20 pl-4 md:pl-8">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Visit</p>
-                  <p className="text-lg font-headline font-bold text-on-surface">{patient.lastVisit}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Last Visit
+                  </p>
+                  <p className="text-lg font-headline font-bold text-on-surface">
+                    {patient.lastVisit}
+                  </p>
                 </div>
               </div>
             </div>
@@ -97,45 +142,57 @@ useEffect(() => {
                 Reports
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
               </button>
-              <button className="px-8 py-4 text-sm font-medium text-slate-500 hover:text-on-surface-variant transition-colors">Prescriptions</button>
+              <button className="px-8 py-4 text-sm font-medium text-slate-500 hover:text-on-surface-variant transition-colors">
+                Prescriptions
+              </button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="relative w-full md:w-96 group">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                <input className="w-full bg-surface-container-highest/50 border-none rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-slate-400" placeholder="Search medical reports..." type="text"/>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                  search
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search medical reports..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-surface-container-highest/50 border-none rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-slate-400"
+                />
               </div>
-              <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                <span className="text-xs font-bold text-slate-400 mr-2 uppercase tracking-tight">Filter:</span>
-                <div className="px-4 py-2 bg-primary-container text-on-primary-container rounded-full text-xs font-bold cursor-pointer whitespace-nowrap">All Reports</div>
-                <div className="px-4 py-2 bg-tertiary-container/10 text-on-tertiary-container rounded-full text-xs font-bold hover:bg-tertiary-container/20 cursor-pointer transition-colors whitespace-nowrap">Radiology</div>
-                <div className="px-4 py-2 bg-tertiary-container/10 text-on-tertiary-container rounded-full text-xs font-bold hover:bg-tertiary-container/20 cursor-pointer transition-colors whitespace-nowrap">Pathology</div>
-                <span className="material-symbols-outlined text-slate-400 p-2 hover:bg-slate-200 rounded-full cursor-pointer">filter_list</span>
-              </div>
+              <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {reports.map((report) => (
+              {filteredReports.map((report) => (
                 <div
                   key={report.id}
                   className="bg-white rounded-xl shadow p-5 border border-gray-200"
                 >
                   <h3 className="text-lg font-bold">{report.reportType}</h3>
-                  <p className="text-sm text-gray-600 mt-2">{report.fileName}</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {report.fileName}
+                  </p>
                   <p className="text-sm text-gray-500 mt-1">{report.notes}</p>
                   <div className="mt-4 flex gap-2">
                     <a
-                      href={`http://localhost:8081/${report.filePath.replace(/\\/g, "/").split("uploads/")[1]}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-                    >
-                      View
-                    </a>
+  href={`http://localhost:8081/uploads/${report.filePath
+    .replace(/\\/g, "/")
+    .split("uploads/")[1]}`}
+  target="_blank"
+  rel="noreferrer"
+  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+>
+  View
+</a>
                   </div>
                 </div>
               ))}
-
+              {filteredReports.length === 0 && (
+                <div className="col-span-2 text-center text-gray-500 py-8">
+                  No reports found.
+                </div>
+              )}
               <div
                 onClick={() => navigate(`/add-prescription/${qrToken}`)}
                 className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer"
@@ -145,14 +202,6 @@ useEffect(() => {
                 </div>
                 <p className="text-sm font-bold">Add Prescription</p>
               </div>
-
-              <div onClick={() => navigate('/add-prescription')} className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 group-hover:bg-primary group-hover:text-on-primary transition-all">
-                  <span className="material-symbols-outlined">upload</span>
-                </div>
-                <p className="text-sm font-bold text-slate-600">Upload New Report</p>
-                <p className="text-[10px] text-slate-400">PDF, JPG up to 10MB</p>
-              </div>
             </div>
           </section>
 
@@ -161,17 +210,27 @@ useEffect(() => {
             <div className="bg-secondary-container/20 border border-secondary-container/30 p-6 rounded-2xl flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined">medical_information</span>
+                  <span className="material-symbols-outlined">
+                    medical_information
+                  </span>
                 </div>
-                <h4 className="font-headline font-bold text-on-surface">Upcoming Appointments</h4>
-                <p className="text-xs text-slate-500 mt-1">General checkup with Dr. Miller in 4 days.</p>
+                <h4 className="font-headline font-bold text-on-surface">
+                  Upcoming Appointments
+                </h4>
+                <p className="text-xs text-slate-500 mt-1">
+                  General checkup with Dr. Miller in 4 days.
+                </p>
               </div>
               <div className="flex items-center gap-3 mt-6">
                 <div className="bg-white p-2 rounded-lg shadow-sm border border-outline-variant/10 text-center flex-1">
                   <p className="text-[10px] font-bold text-slate-400">SEPT</p>
-                  <p className="text-lg font-headline font-extrabold text-primary">22</p>
+                  <p className="text-lg font-headline font-extrabold text-primary">
+                    22
+                  </p>
                 </div>
-                <button className="text-secondary text-xs font-bold hover:underline">Reschedule</button>
+                <button className="text-secondary text-xs font-bold hover:underline">
+                  Reschedule
+                </button>
               </div>
             </div>
           </section>
