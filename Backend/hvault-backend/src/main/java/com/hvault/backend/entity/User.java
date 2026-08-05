@@ -1,6 +1,9 @@
 package com.hvault.backend.entity;
 
 import java.time.LocalDate;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -47,4 +50,10 @@ public class User {
 
     @Column(unique = true)
     private String qrToken;
+
+    public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByEmail(String email);
+
+}
 }

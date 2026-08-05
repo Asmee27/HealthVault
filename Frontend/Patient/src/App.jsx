@@ -8,6 +8,7 @@ import AccessScreen from './screens/AccessScreen';
 import PrescriptionsScreen from './screens/PrescriptionsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import AIHealthAssistant from "./screens/AIHealthAssistant";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/access" element={<AccessScreen />} />
         <Route path="/prescriptions" element={<PrescriptionsScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/ai-health" element={<AIHealthAssistant />} />
       </Routes>
     </Router>
   );

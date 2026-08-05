@@ -22,6 +22,8 @@ export default function AddPrescription() {
       .catch((err) => console.error(err));
   }, [qrToken]);
 
+ const doctor = JSON.parse(localStorage.getItem("doctor"));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -29,7 +31,7 @@ export default function AddPrescription() {
       const params = new URLSearchParams();
 
       params.append("patientId", patient.id);
-      params.append("doctorId", 2);
+      params.append("doctorId", doctor.id);
       params.append("diagnosis", diagnosis);
       params.append("medicines", medicine);
 
@@ -72,7 +74,7 @@ export default function AddPrescription() {
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden md:block text-sm font-medium text-slate-600 dark:text-slate-400">
-            Dr. Sarah Jenkins
+            Dr. {doctor?.fullName}
           </span>
           <img
             alt="Doctor Profile"
@@ -86,53 +88,11 @@ export default function AddPrescription() {
 
       <main className="lg:ml-72 pt-24 px-4 md:px-8 pb-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          {/* Recent History Section */}
-          <div className="xl:col-span-5 space-y-6">
-            <header className="flex items-center justify-between">
-              <div>
-                <h3 className="font-headline text-2xl text-on-surface font-bold">
-                  Recent History
-                </h3>
-                <p className="text-on-surface-variant text-sm">
-                  Review past clinical observations
-                </p>
-              </div>
-            </header>
-            <div className="space-y-4">
-              <HistoryCard
-                type="Infection"
-                color="bg-secondary-container text-on-secondary-container"
-                date="Oct 14, 2023"
-                title="Seasonal Influenza"
-                desc="Patient presented with high fever, body aches, and persistent dry cough for 3 days."
-                extra="Oseltamivir 75mg • 5 Days"
-                extraIcon="medication"
-              />
-              <HistoryCard
-                type="Routine"
-                color="bg-tertiary-container text-white"
-                date="Aug 22, 2023"
-                title="Annual Physical"
-                desc="Overall health stable. Recommended increase in Vitamin D intake and regular cardiovascular exercise."
-                extra="BP: 120/82 • BMI: 24.1"
-                extraIcon="monitoring"
-              />
-              <HistoryCard
-                type="Allergy"
-                color="bg-error-container text-on-error-container"
-                date="May 10, 2023"
-                title="Allergic Rhinitis"
-                desc="Severe reaction to pollen. Prescribed antihistamines and nasal spray."
-                extra="Cetirizine 10mg • 30 Days"
-                extraIcon="medication"
-                opacity="opacity-75"
-              />
-            </div>
-          </div>
+          
 
           {/* Prescription Form Section */}
-          <div className="xl:col-span-7">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl shadow-teal-950/5 relative overflow-hidden">
+          <div className="xl:col-span-12 max-w-5xl mx-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-xl shadow-teal-950/5 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
               <header className="relative mb-10">
@@ -147,13 +107,12 @@ export default function AddPrescription() {
                   </h2>
                 </div>
                 <p className="text-on-surface-variant">
-                  Fill in the details to record a new clinical entry for
-                  Alexander Chen.
+                  Fill in the details to record a new clinical entry for {patient.fullName}. 
                 </p>
               </header>
 
               <form className="space-y-8 relative" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-on-surface-variant ml-1">
                       Doctor Name
@@ -166,7 +125,7 @@ export default function AddPrescription() {
                         className="w-full pl-12 pr-4 py-4 bg-surface-container-low border-transparent rounded-xl font-medium text-on-surface focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
                         readOnly
                         type="text"
-                        defaultValue="Dr. Sarah Jenkins"
+                        defaultValue={doctor?.fullName}
                       />
                     </div>
                   </div>
@@ -222,7 +181,7 @@ export default function AddPrescription() {
                         <input
                           className="w-full px-5 py-4 bg-surface-container-lowest border-outline-variant/30 rounded-xl text-sm focus:ring-primary/5 focus:border-primary transition-all"
                           placeholder="Medicine Name (e.g. Amoxicillin)"
-                          type="text"
+                          type="textarea"
                           value={medicine}
                           onChange={(e) => setMedicine(e.target.value)}
                         />
@@ -296,7 +255,7 @@ export default function AddPrescription() {
 
                 <div className="pt-6 flex flex-col md:flex-row gap-4">
                   <button
-                    className="flex-1 bg-primary text-on-primary font-headline font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-container transition-all active:scale-[0.98]"
+                    className="flex-1 bg-teal-900 text-on-primary font-headline font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:bg-teal-950 transition-all active:scale-[0.98]"
                     type="submit"
                   >
                     Save Prescription

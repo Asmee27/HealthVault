@@ -3,6 +3,8 @@ package com.hvault.backend.controller;
 import com.hvault.backend.dto.RegisterRequest;
 import com.hvault.backend.service.AuthService;
 import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.hvault.backend.dto.LoginRequest;
 import com.hvault.backend.dto.LoginResponse;
@@ -41,5 +43,19 @@ public User updateProfile(
         @RequestBody UpdateProfileRequest request) {
 
     return authService.updateProfile(email, request);
+}
+
+@GetMapping("/doctor/patient/{qrToken}")
+public ResponseEntity<User> getPatientByQrToken(
+        @PathVariable String qrToken) {
+
+    return ResponseEntity.ok(
+            authService.getPatientByQrToken(qrToken)
+    );
+}
+
+@GetMapping("/doctor/{email}")
+public User getDoctorByEmail(@PathVariable String email) {
+    return authService.getDoctorByEmail(email);
 }
 }

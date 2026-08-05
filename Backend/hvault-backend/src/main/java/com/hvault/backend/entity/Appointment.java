@@ -3,7 +3,8 @@ package com.hvault.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -11,30 +12,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Prescription {
+public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Patient receiving the prescription
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private User patient;
 
-    // Doctor who created it
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     private User doctor;
 
-    private String diagnosis;
+    private LocalDate appointmentDate;
 
-    @Column(columnDefinition = "TEXT")
-    private String medicines;
+    private LocalTime appointmentTime;
 
-    private String duration;
+    private String purpose;
 
-    private String frequency;
-
-    private LocalDateTime createdAt;
+    private String status; // Scheduled, Completed, Cancelled
 }

@@ -1,15 +1,21 @@
 package com.hvault.backend.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.hvault.backend.entity.Prescription;
 import com.hvault.backend.entity.User;
 import com.hvault.backend.repository.PrescriptionRepository;
 import com.hvault.backend.repository.UserRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.time.LocalDateTime;
 
 @Service
 public class PrescriptionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PrescriptionService.class);
 
     private final PrescriptionRepository prescriptionRepository;
     private final UserRepository userRepository;
@@ -44,7 +50,12 @@ public class PrescriptionService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return prescriptionRepository.save(prescription);
+        try {
+    return prescriptionRepository.save(prescription);
+} catch (Exception e) {
+    logger.error("Failed to save prescription for patientId={} and doctorId={}", patientId, doctorId, e);
+    throw e;
+}
     }
 
     public List<Prescription> getPatientPrescriptions(Long patientId) {

@@ -69,6 +69,40 @@ body {
   border-radius: 10px;
 }
 
+#reader {
+  width: 300px;
+  height: 300px;
+  margin: auto;
+}
+
+#reader video {
+  width: 300px !important;
+  height: 300px !important;
+  object-fit: cover;
+}
+
+#reader__dashboard {
+  display: none;
+}
+
+#reader {
+  width: 300px !important;
+  height: 300px !important;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+#reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+#reader img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 @layer components {
   .fill-1 {
     font-variation-settings: 'FILL' 1;

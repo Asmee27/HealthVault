@@ -21,6 +21,7 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
+    
     public String register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -31,13 +32,14 @@ public class AuthService {
             return "Mobile number already registered";
         }
 
+        
         User user = new User();
 
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setMobileNumber(request.getMobileNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.PATIENT);
+        user.setRole(request.getRole());
         user.setGender(request.getGender());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setBloodGroup(request.getBloodGroup());
@@ -92,4 +94,22 @@ public class AuthService {
                 .or(() -> userRepository.findByMobileNumber(identifier))
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    public User getPatientByQrToken(String qrToken) {
+
+    return userRepository.findByQrToken(qrToken)
+            .orElseThrow(() -> new RuntimeException("Patient not found"));
+}
+
+    public User getDoctorByEmail(String email) {
+
+    User doctor = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+    if (doctor.getRole() != Role.DOCTOR) {
+        throw new RuntimeException("User is not a doctor");
+    }
+
+    return doctor;
+}
 }

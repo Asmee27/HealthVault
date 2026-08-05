@@ -12,11 +12,23 @@ export default function PatientOverview() {
   const [searchTerm, setSearchTerm] = useState("");
   const [patient, setPatient] = useState(null);
   const [reports, setReports] = useState([]);
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [activeTab, setActiveTab] = useState("reports");
+  console.log(patient);
+  console.log("Prescriptions:", prescriptions);
 
   useEffect(() => {
     axios
       .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
-      .then((res) => setPatient(res.data));
+      .then((res) => {
+        setPatient(res.data);
+
+        axios
+          .get(`http://localhost:8081/api/prescriptions/${res.data.id}`)
+          .then((pres) => setPrescriptions(pres.data))
+          .catch((err) => console.error(err));
+      })
+      .catch((err) => console.error(err));
 
     axios
       .get(`http://localhost:8081/api/patient/patient/${qrToken}/reports`)
@@ -91,7 +103,7 @@ export default function PatientOverview() {
                     <p className="text-sm text-slate-500 font-medium">
                       Health ID:{" "}
                       <span className="text-on-surface-variant">
-                        {patient.qrToken}
+                        {patient.id}
                       </span>
                     </p>
                   </div>
@@ -106,12 +118,6 @@ export default function PatientOverview() {
                     </span>
                     Blood Group: {patient.bloodGroup}
                   </div>
-                  <div className="px-4 py-2 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm">
-                      warning
-                    </span>
-                    Allergies: Penicillin, Peanuts
-                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 md:flex md:gap-8">
@@ -124,12 +130,7 @@ export default function PatientOverview() {
                   </p>
                 </div>
                 <div className="text-center md:text-left border-l border-outline-variant/20 pl-4 md:pl-8">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    Last Visit
-                  </p>
-                  <p className="text-lg font-headline font-bold text-on-surface">
-                    {patient.lastVisit}
-                  </p>
+                  
                 </div>
               </div>
             </div>
@@ -138,12 +139,26 @@ export default function PatientOverview() {
           {/* Reports Section */}
           <section className="space-y-6">
             <div className="flex items-center border-b border-outline-variant/20">
-              <button className="px-8 py-4 text-sm font-bold text-primary border-b-2 border-primary relative">
-                Reports
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+              <button
+                onClick={() => setActiveTab("reports")}
+                className={`px-8 py-4 text-sm font-bold ${
+                  activeTab === "reports"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-slate-500"
+                }`}
+              >
+                Reports ({reports.length})
               </button>
-              <button className="px-8 py-4 text-sm font-medium text-slate-500 hover:text-on-surface-variant transition-colors">
-                Prescriptions
+
+              <button
+                onClick={() => setActiveTab("prescriptions")}
+                className={`px-8 py-4 text-sm font-bold ${
+                  activeTab === "prescriptions"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-slate-500"
+                }`}
+              >
+                Prescriptions ({prescriptions.length})
               </button>
             </div>
 
@@ -163,36 +178,78 @@ export default function PatientOverview() {
               <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="bg-white rounded-xl shadow p-5 border border-gray-200"
-                >
-                  <h3 className="text-lg font-bold">{report.reportType}</h3>
-                  <p className="text-sm text-gray-600 mt-2">
-                    {report.fileName}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">{report.notes}</p>
-                  <div className="mt-4 flex gap-2">
-                    <a
-  href={`http://localhost:8081/uploads/${report.filePath
-    .replace(/\\/g, "/")
-    .split("uploads/")[1]}`}
-  target="_blank"
-  rel="noreferrer"
-  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
->
-  View
-</a>
+            {activeTab === "reports" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="bg-white rounded-xl shadow p-5 border border-gray-200"
+                  >
+                    <h3 className="text-lg font-bold">{report.reportType}</h3>
+
+                    <p className="text-sm text-gray-600 mt-2">
+                      {report.fileName}
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-1">{report.notes}</p>
+
+                    <div className="mt-4 flex gap-2">
+                      <a
+                        href={`http://localhost:8081/uploads/${
+                          report.filePath
+                            .replace(/\\/g, "/")
+                            .split("uploads/")[1]
+                        }`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 bg-teal-700 text-white rounded-lg"
+                      >
+                        View
+                      </a>
+                    </div>
                   </div>
-                </div>
-              ))}
-              {filteredReports.length === 0 && (
-                <div className="col-span-2 text-center text-gray-500 py-8">
-                  No reports found.
-                </div>
-              )}
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {prescriptions.map((prescription) => (
+                  <div
+                    key={prescription.id}
+                    className="bg-white rounded-xl shadow p-5 border border-gray-200"
+                  >
+                    <h3 className="text-lg font-bold">
+                      {prescription.diagnosis}
+                    </h3>
+
+                    <p className="mt-2">
+                      <b>Medicines:</b> {prescription.medicines}
+                    </p>
+
+                    <p className="mt-2">
+                      <b>Duration:</b> {prescription.duration}
+                    </p>
+
+                    <p className="mt-2">
+                      <b>Frequency:</b> {prescription.frequency}
+                    </p>
+
+                    <p className="mt-3 text-sm text-gray-500">
+                      Dr. {prescription.doctor?.fullName}
+                    </p>
+
+                    <p className="text-xs text-gray-400">
+                      {new Date(prescription.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {filteredReports.length === 0 && (
+              <div className="col-span-2 text-center text-gray-500 py-8">
+                No reports found.
+              </div>
+            )}
+            {activeTab === "reports" && (
               <div
                 onClick={() => navigate(`/add-prescription/${qrToken}`)}
                 className="border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center justify-center p-6 bg-surface-container-low/50 group hover:bg-surface-container-low transition-colors cursor-pointer"
@@ -200,40 +257,14 @@ export default function PatientOverview() {
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mb-3">
                   <span className="material-symbols-outlined">add</span>
                 </div>
+
                 <p className="text-sm font-bold">Add Prescription</p>
+
               </div>
-            </div>
+            )}
           </section>
 
-          {/* Appointments Section */}
-          <section className="grid grid-cols-1 gap-6 mt-12">
-            <div className="bg-secondary-container/20 border border-secondary-container/30 p-6 rounded-2xl flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined">
-                    medical_information
-                  </span>
-                </div>
-                <h4 className="font-headline font-bold text-on-surface">
-                  Upcoming Appointments
-                </h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  General checkup with Dr. Miller in 4 days.
-                </p>
-              </div>
-              <div className="flex items-center gap-3 mt-6">
-                <div className="bg-white p-2 rounded-lg shadow-sm border border-outline-variant/10 text-center flex-1">
-                  <p className="text-[10px] font-bold text-slate-400">SEPT</p>
-                  <p className="text-lg font-headline font-extrabold text-primary">
-                    22
-                  </p>
-                </div>
-                <button className="text-secondary text-xs font-bold hover:underline">
-                  Reschedule
-                </button>
-              </div>
-            </div>
-          </section>
+          
         </div>
       </main>
       <MobileNav />

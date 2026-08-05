@@ -8,7 +8,7 @@ export default function BottomNavBar({ activeTab }) {
     { id: 'records', label: 'Records', icon: 'description', path: '/records' },
     { id: 'upload', label: 'Upload', icon: 'cloud_upload', path: '/upload', center: true },
     { id: 'access', label: 'Access', icon: 'key', path: '/access' },
-    { id: 'profile', label: 'Profile', icon: 'person', path: '/profile' }
+    { id: 'profile', label: 'Profile', icon: 'person', path: '/profile' },
   ];
 
   return (
