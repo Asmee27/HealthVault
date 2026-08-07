@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import jsPDF from "jspdf";
+import downloadPrescription from "./downloadPrescription";
 import TopAppBar from "../components/TopAppBar";
 import BottomNavBar from "../components/BottomNavBar";
 
@@ -10,6 +10,29 @@ export default function PrescriptionsScreen() {
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [search, setSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const deletePrescription = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this prescription?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await axios.delete(
+      `http://localhost:8081/api/prescriptions/${id}`
+    );
+
+    setPrescriptions((prev) =>
+      prev.filter((prescription) => prescription.id !== id)
+    );
+
+    alert("Prescription deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting prescription:", error);
+    alert("Failed to delete prescription.");
+  }
+};
 
   useEffect(() => {
     const fetchPrescriptions = async () => {
@@ -25,6 +48,8 @@ export default function PrescriptionsScreen() {
         const response = await axios.get(
           `http://localhost:8081/api/prescriptions/${patientId}`,
         );
+
+        console.log("PRESCRIPTIONS:", response.data);
 
         setPrescriptions(response.data);
       } catch (error) {
@@ -48,39 +73,34 @@ export default function PrescriptionsScreen() {
   const filteredPrescriptions = prescriptions.filter((card) => {
     const search = searchTerm.toLowerCase();
 
+    const deletePrescription = async (id) => {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this prescription?",
+      );
+
+      if (!confirmDelete) return;
+
+      try {
+        await axios.delete(`http://localhost:8081/api/prescriptions/${id}`);
+
+        // Remove it from the screen immediately
+        setPrescriptions((prev) =>
+          prev.filter((prescription) => prescription.id !== id),
+        );
+
+        alert("Prescription deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting prescription:", error);
+        alert("Failed to delete prescription.");
+      }
+    };
+
     return (
       card.diagnosis?.toLowerCase().includes(search) ||
       card.medicines?.toLowerCase().includes(search) ||
       card.doctor?.fullName?.toLowerCase().includes(search)
     );
   });
-
-  const downloadPrescription = (card) => {
-  const doc = new jsPDF();
-
-  doc.setFontSize(20);
-  doc.text("Medical Prescription", 20, 20);
-
-  doc.setFontSize(12);
-
-  doc.text(`Doctor: ${card.doctor?.fullName || "N/A"}`, 20, 40);
-  doc.text(`Diagnosis: ${card.diagnosis}`, 20, 50);
-  doc.text(`Medicines: ${card.medicines}`, 20, 60);
-  doc.text(`Duration: ${card.duration}`, 20, 70);
-  doc.text(`Frequency: ${card.frequency}`, 20, 80);
-
-  doc.text(
-    `Date: ${
-      card.createdAt
-        ? new Date(card.createdAt).toLocaleDateString()
-        : ""
-    }`,
-    20,
-    90
-  );
-
-  doc.save(`Prescription_${card.id}.pdf`);
-};
 
   return (
     <div className="pb-32 bg-surface min-h-screen">
@@ -173,13 +193,22 @@ export default function PrescriptionsScreen() {
                   >
                     View Details
                   </button>
+
                   <button
-  onClick={() => downloadPrescription(card)}
-  className="p-3 rounded-xl bg-secondary-container/30 text-on-secondary-container"
->
-  <span className="material-symbols-outlined">download</span>
-</button>
-                    
+                    onClick={() => downloadPrescription(card)}
+                    className="p-3 rounded-xl bg-secondary-container/30 text-on-secondary-container"
+                    title="Download Prescription"
+                  >
+                    <span className="material-symbols-outlined">download</span>
+                  </button>
+
+                  <button
+                    onClick={() => deletePrescription(card.id)}
+                    className="p-3 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                    title="Delete Prescription"
+                  >
+                    <span className="material-symbols-outlined">delete</span>
+                  </button>
                 </div>
               </div>
             ))}

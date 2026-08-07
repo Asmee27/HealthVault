@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { register } from '../services/authService';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { register } from "../services/authService";
 
 export default function DoctorRegister() {
   const navigate = useNavigate();
@@ -8,14 +8,15 @@ export default function DoctorRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    mobileNumber: '',
-    password: '',
-    confirmPassword: '',
-    gender: '',
-    dateOfBirth: '',
-    bloodGroup: '',
+    fullName: "",
+    email: "",
+    mobileNumber: "",
+    password: "",
+    confirmPassword: "",
+    gender: "",
+    dateOfBirth: "",
+    bloodGroup: "",
+    licenseId: "",
   });
 
   const updateField = (field, value) => {
@@ -26,7 +27,7 @@ export default function DoctorRegister() {
     event.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      alert("Passwords do not match");
       return;
     }
 
@@ -41,14 +42,16 @@ export default function DoctorRegister() {
         gender: formData.gender,
         dateOfBirth: formData.dateOfBirth,
         bloodGroup: formData.bloodGroup,
-        role: 'DOCTOR', // Set the role to DOCTOR for doctor registration
+        licenseId: formData.licenseId,
+        signatureName: formData.signatureName,
+        role: "DOCTOR", // Set the role to DOCTOR for doctor registration
       };
 
       const response = await register(payload);
-      alert(response.data?.message || 'Registration successful');
-      navigate('/', { replace: true });
+      alert(response.data?.message || "Registration successful");
+      navigate("/", { replace: true });
     } catch (error) {
-      alert(error.response?.data?.message || 'Registration failed');
+      alert(error.response?.data?.message || "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,16 +80,20 @@ export default function DoctorRegister() {
                 Create Account
               </h1>
               <p className="text-on-surface-variant font-medium text-sm leading-relaxed max-w-xl mx-auto">
-                Join HVault to securely manage your medical records, reports, and access permissions.
+                Join HVault to securely manage your medical records, reports,
+                and access permissions.
               </p>
             </div>
 
-            <form className="px-6 md:px-10 pb-12 space-y-6" onSubmit={handleSubmit}>
+            <form
+              className="px-6 md:px-10 pb-12 space-y-6"
+              onSubmit={handleSubmit}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Field
                   label="Full Name"
                   value={formData.fullName}
-                  onChange={(value) => updateField('fullName', value)}
+                  onChange={(value) => updateField("fullName", value)}
                   placeholder="Enter full name"
                   icon="badge"
                 />
@@ -94,25 +101,31 @@ export default function DoctorRegister() {
                   label="Email Address"
                   type="email"
                   value={formData.email}
-                  onChange={(value) => updateField('email', value)}
+                  onChange={(value) => updateField("email", value)}
                   placeholder="Enter email"
                   icon="mail"
+                />
+                <Field
+                  label="Medical License ID"
+                  value={formData.licenseId}
+                  onChange={(value) => updateField("licenseId", value)}
+                  placeholder="Enter License ID"
+                  icon="badge"
                 />
                 <Field
                   label="Mobile Number"
                   type="tel"
                   value={formData.mobileNumber}
-                  onChange={(value) => updateField('mobileNumber', value)}
+                  onChange={(value) => updateField("mobileNumber", value)}
                   placeholder="Enter mobile number"
                   icon="call"
                 />
-                
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PasswordField
                   label="Password"
                   value={formData.password}
-                  onChange={(value) => updateField('password', value)}
+                  onChange={(value) => updateField("password", value)}
                   showPassword={showPassword}
                   onToggle={() => setShowPassword((previous) => !previous)}
                   placeholder="Create password"
@@ -120,10 +133,20 @@ export default function DoctorRegister() {
                 <PasswordField
                   label="Confirm Password"
                   value={formData.confirmPassword}
-                  onChange={(value) => updateField('confirmPassword', value)}
+                  onChange={(value) => updateField("confirmPassword", value)}
                   showPassword={showConfirmPassword}
-                  onToggle={() => setShowConfirmPassword((previous) => !previous)}
+                  onToggle={() =>
+                    setShowConfirmPassword((previous) => !previous)
+                  }
                   placeholder="Confirm password"
+                />
+
+                <Field
+                  label="Digital Signature Name"
+                  value={formData.signatureName}
+                  onChange={(value) => updateField("signatureName", value)}
+                  placeholder="Enter your signature name"
+                  icon="draw"
                 />
               </div>
 
@@ -133,7 +156,7 @@ export default function DoctorRegister() {
                   disabled={isSubmitting}
                   className="w-full py-4 bg-primary text-on-primary font-headline font-bold text-lg rounded-xl shadow-lg shadow-primary/10 transition-all hover:translate-y-[-2px] active:scale-95 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Creating Account...' : 'Register'}
+                  {isSubmitting ? "Creating Account..." : "Register"}
                 </button>
 
                 <div className="flex items-center justify-center gap-2 pt-2">
@@ -142,7 +165,7 @@ export default function DoctorRegister() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="text-primary font-bold text-sm hover:underline underline-offset-4"
                   >
                     Login
@@ -157,7 +180,7 @@ export default function DoctorRegister() {
   );
 }
 
-function Field({ label, type = 'text', value, onChange, placeholder, icon }) {
+function Field({ label, type = "text", value, onChange, placeholder, icon }) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">
@@ -179,7 +202,14 @@ function Field({ label, type = 'text', value, onChange, placeholder, icon }) {
   );
 }
 
-function PasswordField({ label, value, onChange, showPassword, onToggle, placeholder }) {
+function PasswordField({
+  label,
+  value,
+  onChange,
+  showPassword,
+  onToggle,
+  placeholder,
+}) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant ml-1">
@@ -190,7 +220,7 @@ function PasswordField({ label, value, onChange, showPassword, onToggle, placeho
           <span className="material-symbols-outlined text-xl">lock</span>
         </div>
         <input
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
@@ -202,7 +232,7 @@ function PasswordField({ label, value, onChange, showPassword, onToggle, placeho
           className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined">
-            {showPassword ? 'visibility_off' : 'visibility'}
+            {showPassword ? "visibility_off" : "visibility"}
           </span>
         </button>
       </div>

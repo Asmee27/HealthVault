@@ -1,7 +1,9 @@
 package com.hvault.backend.dto;
 
 import java.time.LocalDate;
+
 import com.hvault.backend.entity.Role;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -27,6 +29,10 @@ public class RegisterRequest {
     private LocalDate dateOfBirth;
 
     private String bloodGroup;
+
+    private String licenseId;
+
+    private String signatureName;
 
     private Role role;
     

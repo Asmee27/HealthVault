@@ -1,15 +1,17 @@
 package com.hvault.backend.service;
 
+import java.util.UUID;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.hvault.backend.dto.LoginRequest;
-import com.hvault.backend.dto.RegisterRequest;
 import com.hvault.backend.dto.LoginResponse;
+import com.hvault.backend.dto.RegisterRequest;
+import com.hvault.backend.dto.UpdateProfileRequest;
 import com.hvault.backend.entity.Role;
 import com.hvault.backend.entity.User;
 import com.hvault.backend.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import com.hvault.backend.dto.UpdateProfileRequest;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -43,6 +45,8 @@ public class AuthService {
         user.setGender(request.getGender());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setBloodGroup(request.getBloodGroup());
+        user.setLicenseId(request.getLicenseId());
+        user.setSignatureName(request.getSignatureName());
         user.setQrToken(UUID.randomUUID().toString());
         userRepository.save(user);
 
@@ -69,7 +73,10 @@ public class AuthService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getMobileNumber(),
-                user.getRole().name());
+                user.getRole().name(),
+                user.getLicenseId(),
+                user.getSignatureName()
+        );
     }
 
     public User updateProfile(String identifier, UpdateProfileRequest request) {

@@ -115,7 +115,7 @@ export default function DoctorLoginScreen() {
                     try {
                       const identifier = email.trim();
                       const response = await login(identifier, password);
-
+                      console.log(response.data);
                       const profile = {
                         id: response.data.id,
                         fullName: response.data.fullName,

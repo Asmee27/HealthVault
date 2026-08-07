@@ -51,11 +51,11 @@ public class PrescriptionService {
                 .build();
 
         try {
-    return prescriptionRepository.save(prescription);
-} catch (Exception e) {
-    logger.error("Failed to save prescription for patientId={} and doctorId={}", patientId, doctorId, e);
-    throw e;
-}
+            return prescriptionRepository.save(prescription);
+        } catch (Exception e) {
+            logger.error("Failed to save prescription", e);
+            throw e;
+        }
     }
 
     public List<Prescription> getPatientPrescriptions(Long patientId) {
@@ -64,6 +64,14 @@ public class PrescriptionService {
             .orElseThrow(() -> new RuntimeException("Patient not found"));
 
     return prescriptionRepository.findByPatientOrderByCreatedAtDesc(patient);
+}
+
+public void deletePrescription(Long id) {
+
+    Prescription prescription = prescriptionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Prescription not found"));
+
+    prescriptionRepository.delete(prescription);
 }
 
 }

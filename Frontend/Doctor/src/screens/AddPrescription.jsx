@@ -10,10 +10,26 @@ export default function AddPrescription() {
   const { qrToken } = useParams();
   const [patient, setPatient] = useState(null);
   const [diagnosis, setDiagnosis] = useState("");
-  const [medicine, setMedicine] = useState("");
+  const [medicines, setMedicines] = useState([""]);
   const [duration, setDuration] = useState("7 Days");
   const [frequency, setFrequency] = useState("Three times daily");
   const [dosage, setDosage] = useState("");
+
+  const addMedicine = () => {
+    setMedicines([...medicines, ""]);
+  };
+
+  const updateMedicine = (index, value) => {
+    const updated = [...medicines];
+    updated[index] = value;
+    setMedicines(updated);
+  };
+
+  const removeMedicine = (index) => {
+    if (medicines.length === 1) return;
+
+    setMedicines(medicines.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     axios
@@ -22,18 +38,20 @@ export default function AddPrescription() {
       .catch((err) => console.error(err));
   }, [qrToken]);
 
- const doctor = JSON.parse(localStorage.getItem("doctor"));
+  const doctor = JSON.parse(localStorage.getItem("doctor"));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const medicineText = medicines
+      .filter((med) => med.trim() !== "")
+      .join(", ");
     try {
       const params = new URLSearchParams();
 
       params.append("patientId", patient.id);
       params.append("doctorId", doctor.id);
       params.append("diagnosis", diagnosis);
-      params.append("medicines", medicine);
+      params.append("medicines", medicineText);
 
       params.append("duration", duration);
       params.append("frequency", frequency);
@@ -48,14 +66,14 @@ export default function AddPrescription() {
       alert("Failed to save prescription");
     }
   };
-  
+
   if (!patient) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
-    </div>
-  );
-}
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
   return (
     <div className="bg-surface font-body text-on-surface min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4">
@@ -88,8 +106,6 @@ export default function AddPrescription() {
 
       <main className="lg:ml-72 pt-24 px-4 md:px-8 pb-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-          
-
           {/* Prescription Form Section */}
           <div className="xl:col-span-12 max-w-5xl mx-auto">
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-xl shadow-teal-950/5 relative overflow-hidden">
@@ -107,7 +123,8 @@ export default function AddPrescription() {
                   </h2>
                 </div>
                 <p className="text-on-surface-variant">
-                  Fill in the details to record a new clinical entry for {patient.fullName}. 
+                  Fill in the details to record a new clinical entry for{" "}
+                  {patient.fullName}.
                 </p>
               </header>
 
@@ -165,9 +182,11 @@ export default function AddPrescription() {
                     <label className="text-sm font-semibold text-on-surface-variant">
                       Medicines & Dosage
                     </label>
+
                     <button
-                      className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
                       type="button"
+                      onClick={addMedicine}
+                      className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
                     >
                       <span className="material-symbols-outlined text-base">
                         add
@@ -175,37 +194,39 @@ export default function AddPrescription() {
                       Add Another
                     </button>
                   </div>
+
                   <div className="space-y-3">
-                    <div className="grid grid-cols-12 gap-3 items-center">
-                      <div className="col-span-12 md:col-span-7">
-                        <input
-                          className="w-full px-5 py-4 bg-surface-container-lowest border-outline-variant/30 rounded-xl text-sm focus:ring-primary/5 focus:border-primary transition-all"
-                          placeholder="Medicine Name (e.g. Amoxicillin)"
-                          type="textarea"
-                          value={medicine}
-                          onChange={(e) => setMedicine(e.target.value)}
-                        />
+                    {medicines.map((med, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-12 gap-3 items-center"
+                      >
+                        <div className="col-span-12 md:col-span-10">
+                          <input
+                            className="w-full px-5 py-4 bg-surface-container-lowest border-outline-variant/30 rounded-xl text-sm focus:ring-primary/5 focus:border-primary transition-all"
+                            placeholder={`Medicine ${index + 1} (e.g. Amoxicillin)`}
+                            type="text"
+                            value={med}
+                            onChange={(e) =>
+                              updateMedicine(index, e.target.value)
+                            }
+                          />
+                        </div>
+
+                        {medicines.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeMedicine(index)}
+                            className="col-span-12 md:col-span-2 flex items-center justify-center text-red-500 hover:text-red-700"
+                            title="Remove medicine"
+                          >
+                            <span className="material-symbols-outlined">
+                              delete
+                            </span>
+                          </button>
+                        )}
                       </div>
-                      <div className="col-span-8 md:col-span-4">
-                        <input
-                          className="w-full px-5 py-4 bg-surface-container-lowest border-outline-variant/30 rounded-xl text-sm focus:ring-primary/5 focus:border-primary transition-all"
-                          placeholder="Dosage (e.g. 500mg)"
-                          type="text"
-                          value={dosage}
-                          onChange={(e) => setDosage(e.target.value)}
-                        />
-                      </div>
-                      <div className="col-span-4 md:col-span-1 flex justify-center">
-                        <button
-                          className="text-slate-400 hover:text-error transition-colors"
-                          type="button"
-                        >
-                          <span className="material-symbols-outlined">
-                            delete
-                          </span>
-                        </button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
@@ -274,19 +295,21 @@ export default function AddPrescription() {
         </div>
       </main>
 
-      <button
-        onClick={() => navigate(`/add-prescription/${qrToken}`)}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-2xl shadow-2xl flex items-center justify-center group transition-all hover:w-48 hover:rounded-xl active:scale-95 z-50 overflow-hidden md:hidden"
-      >
-        <div className="flex items-center gap-2 px-4 whitespace-nowrap">
-          <span className="material-symbols-outlined text-3xl">add</span>
-          <span className="font-headline font-bold hidden group-hover:block transition-all opacity-0 group-hover:opacity-100">
-            Add Prescription
-          </span>
-        </div>
-      </button>
+      <div className="md:hidden">
+        <button
+          onClick={() => navigate(`/add-prescription/${qrToken}`)}
+          className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-2xl shadow-2xl flex items-center justify-center group transition-all hover:w-48 hover:rounded-xl active:scale-95 z-50 overflow-hidden"
+        >
+          <div className="flex items-center gap-2 px-4 whitespace-nowrap">
+            <span className="material-symbols-outlined text-3xl">add</span>
+            <span className="font-headline font-bold hidden group-hover:block transition-all opacity-0 group-hover:opacity-100">
+              Add Prescription
+            </span>
+          </div>
+        </button>
 
-      <MobileNav />
+        <MobileNav />
+      </div>
     </div>
   );
 }

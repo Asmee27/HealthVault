@@ -18,6 +18,7 @@ public class MedicalReportService {
 
     private final MedicalReportRepository medicalReportRepository;
     private final UserRepository userRepository;
+    
 
     public MedicalReportService(
             MedicalReportRepository medicalReportRepository,
@@ -61,4 +62,11 @@ public class MedicalReportService {
     public List<MedicalReport> getReportsByUser(Long userId) {
         return medicalReportRepository.findByUserId(userId);
     }
+
+    public void deleteReport(Long id) {
+    MedicalReport report = medicalReportRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Report not found"));
+
+    medicalReportRepository.delete(report);
+}
 }

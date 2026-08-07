@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import TopAppBar from "../components/TopAppBar";
 import BottomNavBar from "../components/BottomNavBar";
-import { getUserReports } from "../services/recordService";
+import { getUserReports, deleteReport } from "../services/recordService";
 
 export default function RecordsScreen() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -29,6 +30,12 @@ export default function RecordsScreen() {
     fetchReports();
   }, []);
 
+  const filteredRecords = records.filter((rec) =>
+  `${rec.fileName} ${rec.reportType} ${rec.notes}`
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase())
+);
+
   return (
     <div className="pb-32 bg-surface min-h-screen">
       <TopAppBar />
@@ -50,6 +57,8 @@ export default function RecordsScreen() {
                 className="w-full pl-12 pr-4 py-4 bg-surface-container-highest border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all"
                 placeholder="Search medical records..."
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -86,12 +95,12 @@ export default function RecordsScreen() {
                 <p className="text-center text-on-surface-variant">
                   Loading records...
                 </p>
-              ) : records.length === 0 ? (
+              ) : filteredRecords.length === 0 ? (
                 <p className="text-center text-on-surface-variant">
                   No medical records found.
                 </p>
               ) : (
-                records.map((rec) => (
+                filteredRecords.map((rec) => (
                   <div
                     key={rec.id}
                     className="group relative bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10 hover:shadow-md transition-all"
@@ -119,19 +128,47 @@ export default function RecordsScreen() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          const fileName = rec.filePath.split("\\").pop();
+                      <div className="flex gap-2">
+  <button
+    onClick={() => {
+      const fileName = rec.filePath.split("\\").pop();
 
-                          window.open(
-                            `http://localhost:8081/uploads/${fileName}`,
-                            "_blank",
-                          );
-                        }}
-                        className="px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg active:scale-95 transition-transform"
-                      >
-                        View
-                      </button>
+      window.open(
+        `http://localhost:8081/uploads/${fileName}`,
+        "_blank",
+      );
+    }}
+    className="px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg"
+  >
+    View
+  </button>
+
+  <button
+    onClick={async () => {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this report?"
+      );
+
+      if (!confirmDelete) return;
+
+      try {
+        await deleteReport(rec.id);
+
+        setRecords((previous) =>
+          previous.filter((item) => item.id !== rec.id)
+        );
+
+        alert("Report deleted successfully");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to delete report");
+      }
+    }}
+    className="px-3 py-2 bg-red-50 text-red-600 font-semibold text-sm rounded-lg hover:bg-red-100 transition-colors"
+  >
+    🗑️
+  </button>
+</div>
                     </div>
                   </div>
                 ))

@@ -51,6 +51,10 @@ public class User {
     @Column(unique = true)
     private String qrToken;
 
+    private String licenseId;
+
+    private String signatureName;
+
     public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
