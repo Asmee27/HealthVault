@@ -128,18 +128,13 @@ export default function RecordsScreen() {
 
                       <div className="flex gap-2">
   <button
-    onClick={() => {
-      const fileName = rec.filePath.split("\\").pop();
-
-      window.open(
-        `${import.meta.env.VITE_API_BASE_URL}/uploads/${fileName}`,
-        "_blank",
-      );
-    }}
-    className="px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg"
-  >
-    View
-  </button>
+  onClick={() => {
+    window.open(rec.filePath, "_blank");
+  }}
+  className="px-4 py-2 bg-surface-container text-on-surface font-semibold text-sm rounded-lg"
+>
+  View
+</button>
 
   <button
     onClick={async () => {
