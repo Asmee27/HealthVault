@@ -2,39 +2,48 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useEffect } from "react";
 
 export default function QRScanner({ onScanSuccess }) {
-
   useEffect(() => {
-
     const html5QrCode = new Html5Qrcode("reader");
 
-    Html5Qrcode.getCameras()
-      .then((devices) => {
+    const startScanner = async () => {
+      try {
+        const devices = await Html5Qrcode.getCameras();
 
-        if (devices && devices.length) {
-
-          html5QrCode.start(
-            { facingMode: "environment" }, // back camera if available
-            {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
-            },
-            (decodedText) => {
-              html5QrCode.stop().then(() => {
-                onScanSuccess(decodedText);
-              });
-            },
-            () => {}
-          );
-
+        if (!devices || devices.length === 0) {
+          console.error("No camera found");
+          return;
         }
 
-      })
-      .catch(console.error);
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          {
+  fps: 10,
+},
+          async (decodedText) => {
+            try {
+              if (html5QrCode.isScanning) {
+                await html5QrCode.stop();
+              }
+            } catch (error) {
+              console.error("Error stopping scanner:", error);
+            }
 
-    return () => {
-      html5QrCode.stop().catch(() => {});
+            onScanSuccess(decodedText);
+          },
+          () => {}
+        );
+      } catch (error) {
+        console.error("Camera error:", error);
+      }
     };
 
+    startScanner();
+
+    return () => {
+      if (html5QrCode.isScanning) {
+        html5QrCode.stop().catch(() => {});
+      }
+    };
   }, []);
 
   return (

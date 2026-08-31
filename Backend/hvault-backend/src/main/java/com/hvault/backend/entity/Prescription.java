@@ -36,5 +36,8 @@ public class Prescription {
 
     private String frequency;
 
+    @Column(columnDefinition = "TEXT")
+    private String reminderSchedule;
+
     private LocalDateTime createdAt;
 }

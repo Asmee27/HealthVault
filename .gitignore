@@ -22,3 +22,22 @@ uploads/
 Backend/hvault-backend/uploads/
 
 details.docx
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Java build
+target/
+
+# Frontend builds
+dist/
+
+# Local uploads
+uploads/
+Backend/hvault-backend/uploads/

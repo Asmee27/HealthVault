@@ -71,9 +71,7 @@ export default function RecordsScreen() {
                 Reports
               </button>
 
-              <button className="px-5 py-2 rounded-full bg-tertiary-container/20 text-on-tertiary-container font-medium text-sm">
-                Prescriptions
-              </button>
+              
             </div>
           </div>
         </section>
@@ -134,7 +132,7 @@ export default function RecordsScreen() {
       const fileName = rec.filePath.split("\\").pop();
 
       window.open(
-        `http://localhost:8081/uploads/${fileName}`,
+        `${import.meta.env.VITE_API_BASE_URL}/uploads/${fileName}`,
         "_blank",
       );
     }}

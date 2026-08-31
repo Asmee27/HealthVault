@@ -14,7 +14,7 @@ export default function ScheduleAppointment() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
+      .get(`${import.meta.env.VITE_API_BASE_URL}/api/patient/qr/${qrToken}`)
       .then((res) => setPatient(res.data));
   }, [qrToken]);
 
@@ -31,7 +31,7 @@ export default function ScheduleAppointment() {
       params.append("purpose", purpose);
 
       await axios.post(
-        "http://localhost:8081/api/appointments",
+        `${import.meta.env.VITE_API_BASE_URL}/api/appointments`,
         params
       );
 

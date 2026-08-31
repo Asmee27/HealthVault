@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import Sidebar from "../components/Sidebar";
-import MobileNav from "../components/MobileNav";
+
 import ReportItem from "../components/ReportItem";
 
 export default function PatientOverview() {
@@ -19,23 +19,55 @@ export default function PatientOverview() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
-      .then((res) => {
-        setPatient(res.data);
+      .get(`${import.meta.env.VITE_API_BASE_URL}/api/patient/qr/${qrToken}`)
+      .then(async (res) => {
+        const patientData = res.data;
 
-        axios
-          .get(`http://localhost:8081/api/prescriptions/${res.data.id}`)
-          .then((pres) => setPrescriptions(pres.data))
-          .catch((err) => console.error(err));
+        setPatient(patientData);
+
+        try {
+          const presResponse = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/api/prescriptions/${patientData.id}`,
+          );
+
+          setPrescriptions(presResponse.data);
+        } catch (err) {
+          console.error("Error fetching prescriptions:", err);
+        }
+
+        try {
+          const reportResponse = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/api/reports/${patientData.id}`,
+          );
+
+          setReports(reportResponse.data);
+        } catch (err) {
+          console.error("Error fetching reports:", err);
+        }
       })
-      .catch((err) => console.error(err));
-
-    axios
-      .get(`http://localhost:8081/api/patient/patient/${qrToken}/reports`)
-      .then((res) => setReports(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error("Error fetching patient:", err);
+      });
   }, [qrToken]);
+  const calculateAge = (dateOfBirth) => {
+    if (!dateOfBirth) return "N/A";
 
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
   if (!patient) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -58,7 +90,7 @@ export default function PatientOverview() {
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4 h-16">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/patient-records")}
+            onClick={() => navigate("/scan-patient-id")}
             className="material-symbols-outlined text-teal-700 hover:bg-slate-200/50 transition-colors p-2 rounded-full"
           >
             arrow_back
@@ -126,12 +158,10 @@ export default function PatientOverview() {
                     Age
                   </p>
                   <p className="text-lg font-headline font-bold text-on-surface">
-                    {patient.age}
+                    {calculateAge(patient.dateOfBirth)}
                   </p>
                 </div>
-                <div className="text-center md:text-left border-l border-outline-variant/20 pl-4 md:pl-8">
-                  
-                </div>
+                <div className="text-center md:text-left border-l border-outline-variant/20 pl-4 md:pl-8"></div>
               </div>
             </div>
           </section>
@@ -195,11 +225,7 @@ export default function PatientOverview() {
 
                     <div className="mt-4 flex gap-2">
                       <a
-                        href={`http://localhost:8081/uploads/${
-                          report.filePath
-                            .replace(/\\/g, "/")
-                            .split("uploads/")[1]
-                        }`}
+                        href={report.filePath}
                         target="_blank"
                         rel="noreferrer"
                         className="px-4 py-2 bg-teal-700 text-white rounded-lg"
@@ -259,15 +285,11 @@ export default function PatientOverview() {
                 </div>
 
                 <p className="text-sm font-bold">Add Prescription</p>
-
               </div>
             )}
           </section>
-
-          
         </div>
       </main>
-      <MobileNav />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:8081/api/reports";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/reports`;
 
 export const getUserReports = (userId) => {
   return axios.get(`${API_URL}/${userId}`);

@@ -38,7 +38,7 @@ export default function AccessScreen() {
               <div className="bg-white p-5 rounded-[calc(1rem-4px)]">
                 {user ? (
                   <img
-                    src={`http://localhost:8081/api/qr/${user.id}`}
+                    src={`${import.meta.env.VITE_API_BASE_URL}/api/qr/${user.id}`}
                     alt="Health QR Code"
                     className="w-[220px] h-[220px]"
                   />

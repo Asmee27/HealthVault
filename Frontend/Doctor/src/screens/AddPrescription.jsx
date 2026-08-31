@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-import MobileNav from "../components/MobileNav";
+
 import HistoryCard from "../components/HistoryCard";
 
 export default function AddPrescription() {
@@ -14,6 +14,17 @@ export default function AddPrescription() {
   const [duration, setDuration] = useState("7 Days");
   const [frequency, setFrequency] = useState("Three times daily");
   const [dosage, setDosage] = useState("");
+  const [reminderSchedule, setReminderSchedule] = useState({
+    morning: false,
+    afternoon: false,
+    night: false,
+  });
+
+  const [reminderTimes, setReminderTimes] = useState({
+    morning: "08:00",
+    afternoon: "13:00",
+    night: "20:00",
+  });
 
   const addMedicine = () => {
     setMedicines([...medicines, ""]);
@@ -31,9 +42,29 @@ export default function AddPrescription() {
     setMedicines(medicines.filter((_, i) => i !== index));
   };
 
+  const toggleReminder = (slot) => {
+    setReminderSchedule((prev) => ({
+      ...prev,
+      [slot]: !prev[slot],
+    }));
+  };
+
+  const updateReminderTime = (slot, time) => {
+    setReminderTimes((prev) => ({
+      ...prev,
+      [slot]: time,
+    }));
+  };
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   useEffect(() => {
     axios
-      .get(`http://localhost:8081/api/patient/qr/${qrToken}`)
+  .get(`${import.meta.env.VITE_API_BASE_URL}/api/patient/qr/${qrToken}`)
       .then((res) => setPatient(res.data))
       .catch((err) => console.error(err));
   }, [qrToken]);
@@ -52,11 +83,30 @@ export default function AddPrescription() {
       params.append("doctorId", doctor.id);
       params.append("diagnosis", diagnosis);
       params.append("medicines", medicineText);
-
       params.append("duration", duration);
       params.append("frequency", frequency);
+      params.append(
+        "reminderSchedule",
+        JSON.stringify({
+          morning: reminderSchedule.morning ? reminderTimes.morning : null,
+          afternoon: reminderSchedule.afternoon
+            ? reminderTimes.afternoon
+            : null,
+          night: reminderSchedule.night ? reminderTimes.night : null,
+        }),
+      );
 
-      await axios.post("http://localhost:8081/api/prescriptions", params);
+      console.log("Sending prescription:", {
+        patientId: patient?.id,
+        doctorId: doctor?.id,
+        diagnosis,
+        medicines: medicineText,
+        reminderSchedule,
+        duration,
+        frequency,
+      });
+
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/prescriptions`, params);
 
       alert("Prescription Saved Successfully!");
 
@@ -74,6 +124,8 @@ export default function AddPrescription() {
       </div>
     );
   }
+
+  
   return (
     <div className="bg-surface font-body text-on-surface min-h-screen">
       <header className="fixed top-0 w-full z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-teal-900/5 flex items-center justify-between px-6 py-4">
@@ -271,6 +323,85 @@ export default function AddPrescription() {
                         <option>Every 6 hours</option>
                       </select>
                     </div>
+
+                    <div className="space-y-4">
+                      <label className="text-sm font-semibold text-on-surface-variant">
+                        Medicine Reminder Schedule
+                      </label>
+
+                      <p className="text-xs text-on-surface-variant">
+                        Select when the patient should receive medicine
+                        reminders.
+                      </p>
+
+                      {/* Morning */}
+                      <div className="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl">
+                        <input
+                          type="checkbox"
+                          checked={reminderSchedule.morning}
+                          onChange={() => toggleReminder("morning")}
+                          className="w-5 h-5 accent-primary"
+                        />
+
+                        <span className="flex-1 font-medium">🌅 Morning</span>
+
+                        <input
+                          type="time"
+                          value={reminderTimes.morning}
+                          onChange={(e) =>
+                            updateReminderTime("morning", e.target.value)
+                          }
+                          disabled={!reminderSchedule.morning}
+                          className="px-3 py-2 border rounded-lg disabled:opacity-40"
+                        />
+                      </div>
+
+                      {/* Afternoon */}
+                      <div className="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl">
+                        <input
+                          type="checkbox"
+                          checked={reminderSchedule.afternoon}
+                          onChange={() => toggleReminder("afternoon")}
+                          className="w-5 h-5 accent-primary"
+                        />
+
+                        <span className="flex-1 font-medium">☀️ Afternoon</span>
+
+                        <input
+                          type="time"
+                          value={reminderTimes.afternoon}
+                          onChange={(e) =>
+                            updateReminderTime("afternoon", e.target.value)
+                          }
+                          disabled={!reminderSchedule.afternoon}
+                          className="px-3 py-2 border rounded-lg disabled:opacity-40"
+                        />
+                      </div>
+
+                      {/* Night */}
+                      <div className="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl">
+                        <input
+                          type="checkbox"
+                          checked={reminderSchedule.night}
+                          onChange={() => toggleReminder("night")}
+                          className="w-5 h-5 accent-primary"
+                        />
+
+                        <span className="flex-1 font-medium">🌙 Night</span>
+
+                        <input
+                          type="time"
+                          value={reminderTimes.night}
+                          onChange={(e) =>
+                            updateReminderTime("night", e.target.value)
+                          }
+                          disabled={!reminderSchedule.night}
+                          className="px-3 py-2 border rounded-lg disabled:opacity-40"
+                        />
+                      </div>
+
+                     
+                    </div>
                   </div>
                 </div>
 
@@ -308,7 +439,6 @@ export default function AddPrescription() {
           </div>
         </button>
 
-        <MobileNav />
       </div>
     </div>
   );

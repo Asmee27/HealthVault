@@ -10,4 +10,6 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
 
     List<Prescription> findByPatientOrderByCreatedAtDesc(User patient);
 
+    // Used by the medicine reminder scheduler
+    List<Prescription> findByReminderScheduleIsNotNull();
 }

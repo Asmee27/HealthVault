@@ -41,13 +41,16 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setMobileNumber(request.getMobileNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+
+       user.setRole(request.getRole());
+
         user.setGender(request.getGender());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setBloodGroup(request.getBloodGroup());
         user.setLicenseId(request.getLicenseId());
         user.setSignatureName(request.getSignatureName());
         user.setQrToken(UUID.randomUUID().toString());
+
         userRepository.save(user);
 
         return "Registration Successful";

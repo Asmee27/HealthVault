@@ -1,31 +1,31 @@
 package com.hvault.backend.service;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.hvault.backend.entity.MedicalReport;
 import com.hvault.backend.entity.User;
 import com.hvault.backend.repository.MedicalReportRepository;
 import com.hvault.backend.repository.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Service
 public class MedicalReportService {
 
     private final MedicalReportRepository medicalReportRepository;
     private final UserRepository userRepository;
-    
+    private final CloudinaryService cloudinaryService;
 
     public MedicalReportService(
             MedicalReportRepository medicalReportRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            CloudinaryService cloudinaryService) {
 
         this.medicalReportRepository = medicalReportRepository;
         this.userRepository = userRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public String uploadReport(
@@ -35,38 +35,55 @@ public class MedicalReportService {
             String notes) throws IOException {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
-        Path uploadDir = Paths.get("uploads").toAbsolutePath().normalize();
-        Files.createDirectories(uploadDir);
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Please select a report file."
+            );
+        }
 
-        String originalFileName = file.getOriginalFilename() == null ? "report" : new File(file.getOriginalFilename()).getName();
-        String fileName = System.currentTimeMillis() + "_" + originalFileName;
-        Path targetFile = uploadDir.resolve(fileName);
+        // Upload file to Cloudinary
+        String cloudinaryUrl =
+                cloudinaryService.uploadFile(file);
 
-        file.transferTo(targetFile.toFile());
-
-        MedicalReport report = new MedicalReport();
+        MedicalReport report =
+                new MedicalReport();
 
         report.setUser(user);
         report.setReportType(reportType);
         report.setNotes(notes);
-        report.setFileName(file.getOriginalFilename());
-        report.setFilePath(targetFile.toString());
+
+        report.setFileName(
+                file.getOriginalFilename()
+        );
+
+        // filePath will now store the Cloudinary HTTPS URL
+        report.setFilePath(cloudinaryUrl);
 
         medicalReportRepository.save(report);
 
         return "Report uploaded successfully";
     }
 
-    public List<MedicalReport> getReportsByUser(Long userId) {
-        return medicalReportRepository.findByUserId(userId);
+    public List<MedicalReport> getReportsByUser(
+            Long userId) {
+
+        return medicalReportRepository
+                .findByUserId(userId);
     }
 
     public void deleteReport(Long id) {
-    MedicalReport report = medicalReportRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Report not found"));
 
-    medicalReportRepository.delete(report);
-}
+        MedicalReport report =
+                medicalReportRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Report not found"
+                                ));
+
+        medicalReportRepository.delete(report);
+    }
 }

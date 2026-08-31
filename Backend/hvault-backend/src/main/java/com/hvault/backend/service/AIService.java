@@ -1,12 +1,16 @@
 package com.hvault.backend.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
-import java.util.List;
 
 @Service
 public class AIService {
@@ -21,7 +25,7 @@ public class AIService {
         String url = "https://api.groq.com/openai/v1/chat/completions";
 
         Map<String, Object> body = Map.of(
-                "model", "llama-3.3-70b-versatile",
+                "model", "openai/gpt-oss-20b",
                 "messages", List.of(
                 Map.of(
                     "role", "system",
