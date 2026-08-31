@@ -43,7 +43,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         configuration.setAllowedOriginPatterns(List.of(
         "http://localhost:*",
         "http://127.0.0.1:*",
-        "https://healthvault-patient.onrender.com"
+        "https://healthvault-patient.onrender.com",
+        "https://healthvault-doctor.onrender.com"
 ));
 
         configuration.setAllowedMethods(List.of(
