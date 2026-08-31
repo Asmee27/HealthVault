@@ -24,9 +24,9 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     .requestMatchers("/api/patient/qr/**").permitAll()
     .requestMatchers("/api/prescriptions/**").permitAll()
     .requestMatchers("/api/reports/**").permitAll()
-    .requestMatchers("/api/cloudinary/**").permitAll()
+    
     .requestMatchers("/api/qr/**").permitAll()
-    .requestMatchers("/api/patient/profile", "/api/patient/profile**").permitAll()
+    .requestMatchers("/api/patient/profile", "/api/patient/profile/**").permitAll()
     .requestMatchers("/api/push/**").permitAll()
     .requestMatchers("/api/ai/**").permitAll()
     .anyRequest().authenticated()
@@ -41,9 +41,10 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*"
-        ));
+        "http://localhost:*",
+        "http://127.0.0.1:*",
+        "https://healthvault-patient.onrender.com"
+));
 
         configuration.setAllowedMethods(List.of(
                 "GET",
