@@ -42,11 +42,11 @@ public class AuthService {
         user.setMobileNumber(request.getMobileNumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-       if (request.getRole() == Role.DOCTOR) {
-    user.setRole(Role.DOCTOR);
-} else {
-    user.setRole(Role.PATIENT);
-}
+        if (request.getRole() == Role.DOCTOR) {
+            user.setRole(Role.DOCTOR);
+        } else {
+            user.setRole(Role.PATIENT);
+        }
 
         user.setGender(request.getGender());
         user.setDateOfBirth(request.getDateOfBirth());
